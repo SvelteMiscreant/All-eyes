@@ -13,8 +13,8 @@ def packet_sniffer():
         src_mac = get_mac_address(eth[1])
         dest_mac = get_mac_address(eth[0])
 
-        print("Source MAC: {src_mac}")
-        print("Destination MAC: {dest_mac}")
+        print("Source MAC: " + src_mac)
+        print("Destination MAC: " + dest_mac)
 
         ip_header = raw_data[eth_length:eth_length + 20]
         iph = struct.unpack('!BBHHHBBH4s4s', ip_header)
@@ -24,8 +24,8 @@ def packet_sniffer():
         src_ip = socket.inet_ntoa(iph[8])
         dest_ip = socket.inet_ntoa(iph[9])
 
-        print("Source IP: {src_ip}")
-        print("Destination IP: {dest_ip}")
+        print("Source IP: " + src_ip)
+        print("Destination IP: " + dest_ip)
 
         print("-------------------")
 
