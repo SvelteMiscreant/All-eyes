@@ -27,7 +27,7 @@ def packet_sniffer():
 
         print("Source IP: " + src_ip)
         print("Destination IP: " + dest_ip)
-        print("Protocol " + protocol)
+        print("Protocol: " + str(protocol))
 
         print("-------------------")
 
