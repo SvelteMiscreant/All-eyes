@@ -17,15 +17,17 @@ def packet_sniffer():
         print("Destination MAC: " + dest_mac)
 
         ip_header = raw_data[eth_length:eth_length + 20]
-        iph = struct.unpack('!BBHHHBBH4s4s', ip_header)
-        version_ihl = iph[0]
-        ihl = version_ihl & 0xF
+        iph = struct.unpack('!BBHHHBBH4s4s', ip_header) # Extracted IP header in correct tuple format
+        version_ihl = iph[0] # First byte of IPH is version of Internet Header Length
+        ihl = version_ihl & 0xF # Last four bits are the Internet Header Length
         iph_length = ihl * 4
-        src_ip = socket.inet_ntoa(iph[8])
+        src_ip = socket.inet_ntoa(iph[8]) # Making the source IP Address human readable
         dest_ip = socket.inet_ntoa(iph[9])
+        protocol = iph[6] # Protocol extracted from IP Header tuple
 
         print("Source IP: " + src_ip)
         print("Destination IP: " + dest_ip)
+        print("Protocol " + protocol)
 
         print("-------------------")
 
