@@ -33,11 +33,16 @@ def packet_analyse(header, data):
 	dest_ip = socket.inet_ntoa(iph[9])
 	protocol = iph[6] # Protocol extracted from IP Header tuple
 	protocol_name = get_protocol_name(protocol)
+
+	tcp_header = data[eth_length + iph_length:eth_length + iph_length + 20]
+	dest_port = struct.unpack("!H", tcp_header[2:4])[0]
+	app_protocol = socket.getservbyport(dest_port)
     
 	print("Source IP: ", src_ip)
 	print("Destination IP: ", dest_ip)
 	print("Protocol Value: ", str(protocol))
 	print("Protocol: ", protocol_name)
+	print("Application Protocol: ", app_protocol)
 
 	print("-------------------")
 
