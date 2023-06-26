@@ -1,18 +1,25 @@
+import subprocess
 import socket
 import struct
 
+def filter():
+	port = input("Which port would you like to block?\n")
+	#proto = input("Which protocol would you like to block?\n")
+	#subprocess.call(["sudo", "iptables", "-A", "INPUT", "-p", "tcp", "--dport", port, "-j", "DROP"])
+	subprocess.call(["sudo", "iptables", "-A", "OUTPUT", "-p", "tcp", "--dport", port, "-j", "DROP"])
+
 def get_protocol_name(protocol):
-    	protocol_names = {
-    		0: "HOPOPT",
-    		1: "ICMP",
-    		2: "IGMP",
-    		3: "GGP",
-    		4: "IPv4",
-    		6: "TCP",
-    		17: "UDP",
-    		84: "IPTM",
-    	}
-    	return protocol_names.get(protocol, "Unknown")
+	protocol_names = {
+		0: "HOPOPT",
+		1: "ICMP",
+		2: "IGMP",
+		3: "GGP",
+		4: "IPv4",
+		6: "TCP",
+		17: "UDP",
+		84: "IPTM",
+	}
+	return protocol_names.get(protocol, "Unknown")
 
 def packet_analyse(header, data):
 	eth_length = 14
@@ -36,13 +43,13 @@ def packet_analyse(header, data):
 
 	tcp_header = data[eth_length + iph_length:eth_length + iph_length + 20]
 	dest_port = struct.unpack("!H", tcp_header[2:4])[0]
-	app_protocol = socket.getservbyport(dest_port)
+	#app_protocol = socket.getservbyport(dest_port)
     
 	print("Source IP: ", src_ip)
 	print("Destination IP: ", dest_ip)
 	print("Protocol Value: ", str(protocol))
 	print("Protocol: ", protocol_name)
-	print("Application Protocol: ", app_protocol)
+	print("Application Protocol: ", dest_port)
 
 	print("-------------------")
 
@@ -57,4 +64,5 @@ def get_mac_address(mac_bytes):
 	mac_string = map('{:02x}'.format, mac_bytes)
 	return ':'.join(mac_string)
 
+filter()
 packet_sniffer()
