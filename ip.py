@@ -21,13 +21,13 @@ def block_ip():
 		source_ip = source_ip.strip()
 		if source_ip:
 			block_source_ip(source_ip)
-			print('The source IP address, ' source_ip, ' has been blocked.\n')
+			print('The source IP address ', source_ip, ' has been blocked.\n')
 			
 	for destination_ip in destination_list:
 		destination_ip = destination_ip.strip()
 		if destination_ip:
 			block_destination_ip(destination_ip)
-			print('The destination IP address, ' destination_ip, ' has been blocked.\n')
+			print('The destination IP address ', destination_ip, ' has been blocked.\n')
 
 # IP Allow
 
@@ -50,10 +50,10 @@ def allow_ip():
 		source_ip = source_ip.strip()
 		if source_ip:
 			allow_source_ip(source_ip)
-			print('The source IP address, ' source_ip, ' has been allowed.\n')
+			print('The source IP address ', source_ip, ' has been allowed.\n')
 			
 	for destination_ip in destination_list:
 		destination_ip = destination_ip.strip()
 		if destination_ip:
 			allow_destination_ip(destination_ip)
-			print('The destination IP address, ' destination_ip, ' has been allowed.\n')
+			print('The destination IP address ', destination_ip, ' has been allowed.\n')
