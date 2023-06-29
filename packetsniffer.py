@@ -39,6 +39,10 @@ def packet_sniffer():
 	while True:
 		rawdata, addr = sniffer.recvfrom(65536)
 		packet_analyse(None, rawdata)
+		
+# Will eventually make the packet data save to a plaintext file
+#		if input() == 'q':
+#			break
 
 def get_mac_address(mac_bytes):
 	mac_string = map('{:02x}'.format, mac_bytes)
