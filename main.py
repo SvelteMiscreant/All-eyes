@@ -1,6 +1,3 @@
-import subprocess
-import socket
-import struct
 import sys
 from packetsniffer import packet_sniffer
 import port as p
