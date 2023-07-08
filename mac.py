@@ -1,3 +1,5 @@
+#Use this as template
+
 import subprocess
 
 def allow_mac_address(mac_address):
