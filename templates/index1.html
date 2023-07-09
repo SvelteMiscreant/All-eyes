@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Packet Sniffer</title>
+    <style>
+        #packet-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #packet-table th,
+        #packet-table td {
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        #packet-table th {
+            background-color: #f2f2f2;
+        }
+
+        #packet-table tbody {
+            display: block;
+            height: 300px;
+            overflow-y: scroll;
+        }
+
+        #packet-table thead,
+        #packet-table tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+</head>
+<body>
+    <h1>Packet Sniffer</h1>
+
+    
+
+    <table id="packet-table">
+        <thead>
+            <tr>
+                <th>Source MAC</th>
+                <th>Destination MAC</th>
+                <th>Source IP</th>
+                <th>Destination IP</th>
+                <th>Protocol</th>
+                <th>Protocol Name</th>
+            </tr>
+        </thead>
+        <tbody id="packet-list"></tbody>
+    </table>
+
+    <script>
+        // Connect to the WebSocket server
+        const socket = io();
+
+        // Receive packet data from the server
+        socket.on('packet_data', function(jsonData) {
+            const packets = JSON.parse(jsonData);
+
+            // Update the packet table on the webpage
+            const packetList = document.getElementById('packet-list');
+            packetList.innerHTML = '';
+
+            packets.forEach(function(packet) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${packet.src_mac}</td>
+                    <td>${packet.dest_mac}</td>
+                    <td>${packet.src_ip}</td>
+                    <td>${packet.dest_ip}</td>
+                    <td>${packet.protocol}</td>
+                    <td>${packet.protocol_name}</td>
+                `;
+                packetList.appendChild(row);
+            });
+        });
+
+        // Start capture function
+        //function startCapture() {
+            // Disable start capture button
+            //onst startBtn = document.getElementById('start-capture-btn');
+            //startBtn.disabled = true;
+
+            // Enable stop capture button
+            //const stopBtn = document.getElementById('stop-capture-btn');
+            //stopBtn.disabled = false;
+
+            // Emit a start capture event to the server
+            //socket.emit('start_capture');
+        }
+
+        // Stop capture function
+        /*function stopCapture() {
+            // Disable stop capture button
+            const stopBtn = document.getElementById('stop-capture-btn');
+            stopBtn.disabled = true;
+
+            // Enable start capture button
+            const startBtn = document.getElementById('start-capture-btn');
+            startBtn.disabled = false;
+
+            // Emit a stop capture event to the server
+            socket.emit('stop_capture');
+        }*/
+    </script>
+</body>
+</html>
