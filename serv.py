@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 import socket
 import struct
@@ -43,6 +43,9 @@ def packet_analyse(header, data):
     tcp_header = data[eth_length + iph_length:eth_length + iph_length + 20]
     dest_port = struct.unpack("!H", tcp_header[2:4])[0]
 
+    if src_ip == '127.0.0.1' or dest_ip == '127.0.0.1':
+        return
+
     packet = {
         'src_mac': src_mac,
         'dest_mac': dest_mac,
@@ -69,7 +72,7 @@ def get_mac_address(mac_bytes):
     mac_string = map('{:02x}'.format, mac_bytes)
     return ':'.join(mac_string)
 
-import subprocess
+
  
 def validate_port(port):
 	if not port:
@@ -105,20 +108,20 @@ def block_port():
     outports = request.form.get('outports')
     inport_list = inports.split(' ')
     outport_list = outports.split(' ')
-
+    
     for inport in inport_list:
-		inport = validate_port(inport.strip())
-		if inport:
-			filter_inport(inport)
-			print('Incoming port ', inport, ' is blocked.\n')
-			
-	for outport in outport_list:
-		outport = validate_port(outport.strip())
-		if outport:
-			filter_outport(outport)
-			print('Outgoing port ', outport, ' is blocked.\n')
-	
-    return 'Port blocked successfully'
+        inport = validate_port(inport.strip())
+        if inport:
+            filter_inport(inport)
+            print('Incoming port ', inport, ' is blocked.\n')
+            
+    for outport in outport_list:
+        outport = validate_port(outport.strip())
+        if outport:
+            filter_outport(outport)
+            print('Outgoing port ', outport, ' is blocked.\n')
+    
+    return 'Ports blocked successfully'
 
 # Port open function
 	
@@ -229,7 +232,6 @@ def block_mac_address(mac_address):
 @app.route('/mac', methods=['POST'])
 def mac():
     # Code for MAC address control
-    def mac():
     mac_address = request.form.get('mac_address')
     action = request.form.get('action')
 
