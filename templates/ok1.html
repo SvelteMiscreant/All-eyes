@@ -67,7 +67,7 @@
         }
 
         thead {
-            /* position: sticky; */
+            position: sticky;
             top: 0;
             background-color: #f2f2f2;
         }
@@ -99,12 +99,31 @@
         socket.on('new_packet', function(packet) {
             addPacketRow(packet);
         });
+
+        // Function to handle form submissions using AJAX
+        function handleFormSubmit(formId, url) {
+            var form = document.getElementById(formId);
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                }
+            };
+            xhr.send(formData);
+        }
     </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
   <body>
-      <h1>Packet Sniffer</h1>
       <div id="container">
+        <div id="header">
+            <h1>Packet Sniffer</h1>
+          </div>
           <div id="leftSection">
               <div id="scrollableBox">
                   <table id="packetTable">
@@ -125,7 +144,7 @@
           </div>
           <div id="rightSection">
               <h2>Network Actions</h2>
-              <form method="POST" action="/">
+              <form id="blockPortForm" onsubmit="event.preventDefault(); handleFormSubmit('blockPortForm', '/block_port');" method="post">
                   <label for="inports">Incoming Ports to Block:</label>
                   <input type="text" name="inports" id="inports" required>
                   <br>
@@ -134,7 +153,7 @@
                   <br>
                   <button type="submit">Block Port</button>
               </form>
-              <form method="POST" action="/open_port">
+              <form id="openPortForm" onsubmit="event.preventDefault(); handleFormSubmit('openPortForm', '/open_port');" method="post">
                   <label for="inports">Incoming Ports to Open:</label>
                   <input type="text" name="inports" id="inports" required>
                   <br>
@@ -145,7 +164,7 @@
               </form>
             </div>
               <div id="right2section">
-                <form method="POST" action="/block_ip">
+                <form id="blockIPForm" onsubmit="event.preventDefault(); handleFormSubmit('blockIPForm', '/block_ip');" method="post">
                     <label for="source_ips">Source IP Addresses to Block:</label>
                     <input type="text" name="source_ips" id="source_ips" required>
                     <br>
@@ -154,7 +173,7 @@
                     <br>
                     <button type="submit">Block IP Address</button>
                   </form>
-                <form method="POST" action="/allow_ip">
+                <form id="allowIPForm" onsubmit="event.preventDefault(); handleFormSubmit('allowIPForm', '/allow_ip');" method="post">
                     <label for="source_ips">Source IP Addresses to Allow:</label>
                     <input type="text" name="source_ips" id="source_ips" required>
                     <br>
@@ -163,7 +182,7 @@
                     <br>
                     <button type="submit">Allow IP Address</button>
                   </form>
-                  <form method="POST" action="/mac">
+                  <form id="macForm" onsubmit="event.preventDefault(); handleFormSubmit('macForm', '/mac');" method="post">
                     <label for="mac_address">MAC Address:</label>
                     <input type="text" name="mac_address" id="mac_address" required>
                     <br>

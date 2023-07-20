@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Packet Sniffer</title>
+      <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 20px;
+        }
+
+        #scrollableBox {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid black;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/sniffer');
+
+        // Function to add a new packet row to the table
+        function addPacketRow(packet) {
+            var table = document.getElementById("packetTable").getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow(-1);
+            newRow.insertCell().innerText = packet.src_mac;
+            newRow.insertCell().innerText = packet.dest_mac;
+            newRow.insertCell().innerText = packet.src_ip;
+            newRow.insertCell().innerText = packet.dest_ip;
+            newRow.insertCell().innerText = packet.protocol;
+            newRow.insertCell().innerText = packet.protocol_name;
+        }
+
+        // Event handler for receiving initial packets data
+        socket.on('init_packets', function(packets) {
+            for (var i = 0; i < packets.length; i++) {
+                addPacketRow(packets[i]);
+            }
+        });
+
+        // Event handler for receiving new packets in real-time
+        socket.on('new_packet', function(packet) {
+            addPacketRow(packet);
+        });
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <body>
+      <h1>Packet Sniffer</h1>
+      <div id="scrollableBox">
+          <table id="packetTable">
+              <thead>
+                  <tr>
+                      <th>Source MAC</th>
+                      <th>Destination MAC</th>
+                      <th>Source IP</th>
+                      <th>Destination IP</th>
+                      <th>Protocol</th>
+                      <th>Protocol Name</th>
+                  </tr>
+              </thead>
+              <tbody>
+              </tbody>
+          </table>
+      </div>
+      <h1>Network Actions</h1>
+      <form method="POST" action="/block_port">
+          <label for="inports">Incoming Ports to Block:</label>
+          <input type="text" name="inports" id="inports" required>
+          <br>
+          <label for="outports">Outgoing Ports to Block:</label>
+          <input type="text" name="outports" id="outports" required>
+          <br>
+          <button type="submit">Block Port</button>
+      </form>
+      <form method="POST" action="/open_port">
+          <label for="inports">Incoming Ports to Open:</label>
+          <input type="text" name="inports" id="inports" required>
+          <br>
+          <label for="outports">Outgoing Ports to Open:</label>
+          <input type="text" name="outports" id="outports" required>
+          <br>
+          <button type="submit">Open Port</button>
+      </form>
+      <form method="POST" action="/block_ip">
+        <label for="source_ips">Source IP Addresses to Block:</label>
+        <input type="text" name="source_ips" id="source_ips" required>
+        <br>
+        <label for="destination_ips">Destination IP Addresses to Block:</label>
+        <input type="text" name="destination_ips" id="destination_ips" required>
+        <br>
+        <button type="submit">Block IP Address</button>
+    </form>
+    <form method="POST" action="/allow_ip">
+        <label for="source_ips">Source IP Addresses to Allow:</label>
+        <input type="text" name="source_ips" id="source_ips" required>
+        <br>
+        <label for="destination_ips">Destination IP Addresses to Allow:</label>
+        <input type="text" name="destination_ips" id="destination_ips" required>
+        <br>
+        <button type="submit">Allow IP Address</button>
+    </form>
+    <form method="POST" action="/mac">
+      <label for="mac_address">MAC Address:</label>
+      <input type="text" name="mac_address" id="mac_address" required>
+      <br>
+      <label for="action">Action:</label>
+      <select name="action" id="action" required>
+          <option value="allow">Allow</option>
+          <option value="block">Block</option>
+      </select>
+      <br>
+      <button type="submit">MAC Address Control</button>
+  </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>
