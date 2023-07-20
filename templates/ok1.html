@@ -146,19 +146,19 @@
               <h2>Network Actions</h2>
               <form id="blockPortForm" onsubmit="event.preventDefault(); handleFormSubmit('blockPortForm', '/block_port');" method="post">
                   <label for="inports">Incoming Ports to Block:</label>
-                  <input type="text" name="inports" id="inports" required>
+                  <input type="text" name="inports" id="inports">
                   <br>
                   <label for="outports">Outgoing Ports to Block:</label>
-                  <input type="text" name="outports" id="outports" required>
+                  <input type="text" name="outports" id="outports">
                   <br>
                   <button type="submit">Block Port</button>
               </form>
               <form id="openPortForm" onsubmit="event.preventDefault(); handleFormSubmit('openPortForm', '/open_port');" method="post">
                   <label for="inports">Incoming Ports to Open:</label>
-                  <input type="text" name="inports" id="inports" required>
+                  <input type="text" name="inports" id="inports">
                   <br>
                   <label for="outports">Outgoing Ports to Open:</label>
-                  <input type="text" name="outports" id="outports" required>
+                  <input type="text" name="outports" id="outports">
                   <br>
                   <button type="submit">Open Port</button>
               </form>
@@ -166,28 +166,28 @@
               <div id="right2section">
                 <form id="blockIPForm" onsubmit="event.preventDefault(); handleFormSubmit('blockIPForm', '/block_ip');" method="post">
                     <label for="source_ips">Source IP Addresses to Block:</label>
-                    <input type="text" name="source_ips" id="source_ips" required>
+                    <input type="text" name="source_ips" id="source_ips">
                     <br>
                     <label for="destination_ips">Destination IP Addresses to Block:</label>
-                    <input type="text" name="destination_ips" id="destination_ips" required>
+                    <input type="text" name="destination_ips" id="destination_ips">
                     <br>
                     <button type="submit">Block IP Address</button>
                   </form>
                 <form id="allowIPForm" onsubmit="event.preventDefault(); handleFormSubmit('allowIPForm', '/allow_ip');" method="post">
                     <label for="source_ips">Source IP Addresses to Allow:</label>
-                    <input type="text" name="source_ips" id="source_ips" required>
+                    <input type="text" name="source_ips" id="source_ips">
                     <br>
                     <label for="destination_ips">Destination IP Addresses to Allow:</label>
-                    <input type="text" name="destination_ips" id="destination_ips" required>
+                    <input type="text" name="destination_ips" id="destination_ips">
                     <br>
                     <button type="submit">Allow IP Address</button>
                   </form>
                   <form id="macForm" onsubmit="event.preventDefault(); handleFormSubmit('macForm', '/mac');" method="post">
                     <label for="mac_address">MAC Address:</label>
-                    <input type="text" name="mac_address" id="mac_address" required>
+                    <input type="text" name="mac_address" id="mac_address">
                     <br>
                     <label for="action">Action:</label>
-                    <select name="action" id="action" required>
+                    <select name="action" id="action">
                         <option value="allow">Allow</option>
                         <option value="block">Block</option>
                     </select>
