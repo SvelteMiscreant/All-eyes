@@ -4,13 +4,13 @@ import socket
 import struct
 import subprocess
 
+import mysql.connector
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
 socketio = SocketIO(app)
 
 packets = []
-blocked_ports = []
-blocked_addresses = {'source_ips': [], 'destination_ips': [], 'mac_addresses': []}
 
 def get_protocol_name(protocol):
     protocol_names = {
@@ -48,20 +48,23 @@ def packet_analyse(header, data):
     if src_ip == '127.0.0.1' or dest_ip == '127.0.0.1':
         return
 
-    packet = {
-        'src_mac': src_mac,
-        'dest_mac': dest_mac,
-        'src_ip': src_ip,
-        'dest_ip': dest_ip,
-        'protocol': protocol,
-        'protocol_name': protocol_name,
-    }
+    db_connection = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='root',
+        database='packet'
+    )
+    cursor = db_connection.cursor()
+    
+    insert_query = "INSERT INTO packets (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name) VALUES (%s, %s, %s, %s, %s, %s)"
+    values = (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name)
+    cursor.execute(insert_query, values)
 
-    # Add packet to the list
-    packets.append(packet)
+    db_connection.commit()
+    db_connection.close()
 
     # Emit the new packet to all connected clients
-    socketio.emit('new_packet', packet, namespace='/sniffer')
+    socketio.emit('new_packet', packets[-1], namespace='/sniffer')
 
 def packet_sniffer():
     sniffer = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
@@ -90,22 +93,21 @@ def validate_port(port):
 
 @app.route('/')
 def index():
-    return render_template('ok1.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+    return render_template('ok1.html')
 
 # Port filter function
 
 def filter_inport(port):
     command = ['sudo', 'iptables', '-A', 'INPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
     subprocess.run(command)
-    blocked_ports.append(port)
 
 def filter_outport(port):
-    command = ['sudo', 'iptables', '-A', 'OUTPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
-    subprocess.run(command)
-    blocked_ports.append(port)
+	command = ['sudo', 'iptables', '-A', 'OUTPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
+	subprocess.run(command)
     
 @app.route('/block_port', methods=['POST'])
 def block_port():
+    # Code for blocking port
     inports = request.form.get('inports')
     outports = request.form.get('outports')
     inport_list = inports.split(' ')
@@ -124,9 +126,7 @@ def block_port():
             print('Outgoing port ', outport, ' is blocked.\n')
     
     if inports or outports:
-        return jsonify({'message': 'Ports blocked successfully', 'blocked_ports': blocked_ports})
-    else:
-        return jsonify({'message': 'No ports blocked', 'blocked_ports': blocked_ports})
+        return jsonify({'message': 'Ports blocked successfully'})
 
 # Port open function
 
@@ -165,15 +165,14 @@ def open_port():
 def block_source_ip(ip):
     command = ['sudo', 'iptables', '-A', 'INPUT', '-s', ip, '-j', 'DROP']
     subprocess.run(command)
-    blocked_addresses['source_ips'].append(ip)
 
 def block_destination_ip(ip):
-    command = ['sudo', 'iptables', '-A', 'OUTPUT', '-d', ip, '-j', 'DROP']
-    subprocess.run(command)
-    blocked_addresses['destination_ips'].append(ip)
+	command = ['sudo', 'iptables', '-A', 'OUTPUT', '-d', ip, '-j', 'DROP']
+	subprocess.run(command)
     
 @app.route('/block_ip', methods=['POST'])
 def block_ip():
+    # Code for blocking IP address
     source_ips = request.form.get('source_ips')
     destination_ips = request.form.get('destination_ips')
 
@@ -192,11 +191,7 @@ def block_ip():
             block_destination_ip(destination_ip)
             print('The destination IP address ', destination_ip, ' has been blocked.\n')
 
-    if source_ips or destination_ips:
-        return jsonify({'message': 'IP addresses blocked successfully', 'blocked_addresses': blocked_addresses})
-    else:
-        return jsonify({'message': 'No IP addresses blocked', 'blocked_addresses': blocked_addresses})
-    
+    return jsonify({'message': 'IP addresses blocked successfully'})
 
 # IP Allow
 
@@ -234,12 +229,10 @@ def allow_ip():
 def allow_mac_address(mac_address):
     command = ['sudo', 'iptables', '-A', 'INPUT', '-m', 'mac', '--mac-source', mac_address, '-j', 'ACCEPT']
     subprocess.run(command)
-    blocked_addresses['mac_addresses'].append(mac_address)
 
 def block_mac_address(mac_address):
     command = ['sudo', 'iptables', '-A', 'INPUT', '-m', 'mac', '--mac-source', mac_address, '-j', 'DROP']
     subprocess.run(command)
-    blocked_addresses['mac_addresses'].append(mac_address)
 
 @app.route('/mac', methods=['POST'])
 def mac():
@@ -263,9 +256,62 @@ def mac():
 
 @socketio.on('connect', namespace='/sniffer')
 def connect():
-    # Send all existing packets to the connected client
-    for packet in packets:
-        socketio.emit('new_packet', packet, namespace='/sniffer')
+    # Create a database connection
+    db_connection = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='root',
+        database='packet'
+    )
+    cursor = db_connection.cursor()
+
+    # Fetch all existing packets from the database
+    select_query = "SELECT src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name FROM packets"
+    cursor.execute(select_query)
+    existing_packets = cursor.fetchall()
+
+    # Emit all existing packets to the connected client
+    for packet in existing_packets:
+        packet_dict = {
+            'src_mac': packet[0],
+            'dest_mac': packet[1],
+            'src_ip': packet[2],
+            'dest_ip': packet[3],
+            'protocol': packet[4],
+            'protocol_name': packet[5],
+        }
+        socketio.emit('new_packet', packet_dict, namespace='/sniffer')
+
+    db_connection.close()
+
+
+def create_packets_table():
+    db_connection = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='root',
+        database='packet'
+    )
+    cursor = db_connection.cursor()
+
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS packets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        src_mac VARCHAR(17) NOT NULL,
+        dest_mac VARCHAR(17) NOT NULL,
+        src_ip VARCHAR(15) NOT NULL,
+        dest_ip VARCHAR(15) NOT NULL,
+        protocol INT NOT NULL,
+        protocol_name VARCHAR(10) NOT NULL
+    )
+    """
+    cursor.execute(create_table_query)
+
+    db_connection.close()
+
+# Call the function to create the packets table
+create_packets_table()
+
 
 if __name__ == '__main__':
     import threading

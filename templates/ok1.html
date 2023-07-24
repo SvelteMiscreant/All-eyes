@@ -31,6 +31,8 @@
             overflow: auto;
             padding: 20px;
             position: relative;
+            margin-top: 50px;
+            margin-left: -270px;
         }
 
         #rightSection {
@@ -38,24 +40,34 @@
             overflow: auto;
             padding: 0px;
             position: relative;
-            margin-top: 0px;
+            margin-top: 25px;
         }
 
         #right2Section {
             flex: 1;
             overflow: auto;
-            padding: 20px;
+            padding: 0px;
             position: relative;
         }
 
-        #rightbelowSection {
+        /* #rightbelowSection {
             flex: 1;
             overflow: auto;
             padding: 20px;
             margin-top: 270px;
             margin-left: -900px;
+        } */
+        .submit .btn{
+        margin: 20px 0;
+        background-color: transparent;
+        width: fit-content;
+        border: 2px solid #8a2be2;
+        padding: 4px 35px;
+        border-radius: 5px;
         }
-
+        .submit .btn:hover{
+            background: #8a2be2;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -71,6 +83,7 @@
             top: 0;
             background-color: #f2f2f2;
         }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
@@ -151,7 +164,10 @@
                   <label for="outports">Outgoing Ports to Block:</label>
                   <input type="text" name="outports" id="outports">
                   <br>
-                  <button type="submit">Block Port</button>
+                  <div class="submit">
+                    <button type="submit" class="btn">Block Port</button>
+                  </div>
+                
               </form>
               <form id="openPortForm" onsubmit="event.preventDefault(); handleFormSubmit('openPortForm', '/open_port');" method="post">
                   <label for="inports">Incoming Ports to Open:</label>
@@ -160,7 +176,9 @@
                   <label for="outports">Outgoing Ports to Open:</label>
                   <input type="text" name="outports" id="outports">
                   <br>
-                  <button type="submit">Open Port</button>
+                  <div class="submit">
+                    <button type="submit" class="btn">Open Port</button>
+                  </div>
               </form>
             </div>
               <div id="right2section">
@@ -171,7 +189,9 @@
                     <label for="destination_ips">Destination IP Addresses to Block:</label>
                     <input type="text" name="destination_ips" id="destination_ips">
                     <br>
-                    <button type="submit">Block IP Address</button>
+                    <div class="submit">
+                        <button type="submit" class="btn">Block IP Address</button>
+                      </div>
                   </form>
                 <form id="allowIPForm" onsubmit="event.preventDefault(); handleFormSubmit('allowIPForm', '/allow_ip');" method="post">
                     <label for="source_ips">Source IP Addresses to Allow:</label>
@@ -180,7 +200,10 @@
                     <label for="destination_ips">Destination IP Addresses to Allow:</label>
                     <input type="text" name="destination_ips" id="destination_ips">
                     <br>
-                    <button type="submit">Allow IP Address</button>
+                    <div class="submit">
+                        <button type="submit" class="btn">Allow IP Address</button>
+                      </div>
+                    
                   </form>
                   <form id="macForm" onsubmit="event.preventDefault(); handleFormSubmit('macForm', '/mac');" method="post">
                     <label for="mac_address">MAC Address:</label>
@@ -192,10 +215,12 @@
                         <option value="block">Block</option>
                     </select>
                     <br>
-                    <button type="submit">MAC Address Control</button>
+                    <div class="submit">
+                        <button type="submit" class="btn">MAC Address Control</button>
+                      </div>
                   </form>
               </div>
-              <div id="rightbelowSection">
+              <!-- <div id="rightbelowSection">
                 <table id="blockedTable">
                     <h2>Blocked Addresses</h2>
                     <thead>
@@ -208,7 +233,7 @@
                     <tbody>
                     </tbody>
                   </table>
-              </div>
+              </div> -->
       </div>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
   </body>
