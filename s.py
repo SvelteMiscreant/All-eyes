@@ -92,6 +92,9 @@ def validate_port(port):
 def index():
     return render_template('ok1.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
 
+@app.route('/control', methods=['GET'])
+def control_page():
+    return render_template('control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
 # Port filter function
 
 def filter_inport(port):

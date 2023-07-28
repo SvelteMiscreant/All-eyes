@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Packet Sniffer</title>
       <style>
         body {
@@ -129,11 +130,91 @@
             };
             xhr.send(formData);
         }
+
+        window.onload = ()=>{
+            var closebtn = document.getElementById("close-ham");
+            var drawer = document.getElementById("drawer");
+            var openbtn = document.getElementById("open-ham")
+            console.log(closebtn)
+            closebtn.addEventListener('click', ()=>{
+                drawer.style.display = 'none'
+            })
+            openbtn.addEventListener('click', ()=>{
+                drawer.style.display = 'block'
+            })
+        }
+        
+
     </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
   <body>
-      <div id="container">
+    <div class="relative" id="close">
+        <div class="absolute z-50 inset-0 flex justify-start bg-gray-500/20 h-screen hidden" id="drawer">
+            <div class="h-screen bg-white w-[40vw] ">
+
+                <div class="flex justify-end p-4">
+                    <div class="cursor-pointer" id="close-ham"> 
+
+                        <img width="20" height="20" src="https://img.icons8.com/ios/50/delete-sign--v1.png" alt="delete-sign--v1"/>
+                    </div>
+
+                </div>
+                <a href="/control" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">Packet Analyzer</h1>
+
+                </a>
+                <a href="/control" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">Port Control</h1>
+
+                </a>
+                <a href="/control" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">MAC Control</h1>
+
+                </a>
+                <a href="/control" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">IP Control</h1>
+
+                </a>
+
+    
+            </div>
+    
+          </div>
+          <div class="flex justify-start w-full px-4 p-3 items-center">
+            <div class="cursor-pointer" id="open-ham">
+                <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/menu--v1.png" alt="menu--v1"/>
+            </div>
+            <div class="mx-4">
+                <h1 class="text-black font-bold">Packet Sniffer</h1>
+    
+    
+            </div>
+    
+          </div>
+          <div class="flex justify-center shadow-md rounded-md mx-4">
+            <div id="leftSection" class="mx-2">
+                <div id="scrollableBox">
+                    <table id="packetTable">
+                        <thead>
+                            <tr>
+                                <th>Source MAC</th>
+                                <th>Destination MAC</th>
+                                <th>Source IP</th>
+                                <th>Destination IP</th>
+                                <th>Protocol</th>
+                                <th>Protocol Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+
+    </div>
+      <!-- <div id="container">
         <div id="header">
             <h1>Packet Sniffer</h1>
           </div>
@@ -220,21 +301,10 @@
                       </div>
                   </form>
               </div>
-              <!-- <div id="rightbelowSection">
-                <table id="blockedTable">
-                    <h2>Blocked Addresses</h2>
-                    <thead>
-                      <tr>
-                        <th>Port</th>
-                        <th>IP Address</th>
-                        <th>MAC Address</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
-              </div> -->
-      </div>
+             
+      </div> -->
+
+      
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
   </body>
 </html>
