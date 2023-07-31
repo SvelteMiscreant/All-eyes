@@ -32,11 +32,11 @@ def block_ip():
 # IP Allow
 
 def allow_source_ip(ip):
-	command = ['sudo', 'iptables', '-A', 'INPUT', '-s', ip, '-j', 'ACCEPT']
+	command = ['sudo', 'iptables', '-D', 'INPUT', '-s', ip, '-j', 'DROP']
 	subprocess.run(command)
 	
 def allow_destination_ip(ip):
-	command = ['sudo', 'iptables', '-A', 'OUTPUT', '-d', ip, '-j', 'ACCEPT']
+	command = ['sudo', 'iptables', '-D', 'OUTPUT', '-d', ip, '-j', 'DROP']
 	subprocess.run(command)
 	
 def allow_ip():

@@ -75,6 +75,7 @@ def get_mac_address(mac_bytes):
     return ':'.join(mac_string)
 
 
+
  
 def validate_port(port):
     if not port:
@@ -92,9 +93,14 @@ def validate_port(port):
 def index():
     return render_template('ok1.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
 
-@app.route('/control', methods=['GET'])
-def control_page():
-    return render_template('control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+@app.route('/portcontrol')
+def portcontrol_page():
+    return render_template('port_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+
+@app.route('/ipcontrol', methods=['GET'])
+def ipcontrol_page():
+    return render_template('ip_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+
 # Port filter function
 
 def filter_inport(port):
