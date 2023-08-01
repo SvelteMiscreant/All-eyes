@@ -9,6 +9,22 @@
   </head>
   
   <script>
+    // Function to handle form submissions using AJAX
+    function handleFormSubmit(formId, url) {
+            var form = document.getElementById(formId);
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                }
+            };
+            xhr.send(formData);
+        }
     window.onload = () => {
       var closebtn = document.getElementById("close-ham");
       var drawer = document.getElementById("drawer");
@@ -42,7 +58,7 @@
                 <h1 class="text-start text-xl">Port Control</h1>
 
             </a>
-            <a href="/" class="px-2 hover:text-indigo-600 cursor-pointer">
+            <a href="/maccontrol" class="px-2 hover:text-indigo-600 cursor-pointer">
                 <h1 class="text-start text-xl">MAC Control</h1>
 
             </a>
@@ -145,26 +161,6 @@
                 </button>
               </div>
             </div>
-          </form>
-          <form
-            id="macForm"
-            onsubmit="event.preventDefault(); handleFormSubmit('macForm', '/mac');"
-            method="post"
-            class="my-4"
-          >
-          <div  class="p-2 rounded-lg shadow-md p-4 w-[80vw]">
-            <label for="mac_address" class="block">MAC Address to:</label>
-            <input type="text" name="mac_address" id="mac_address" class="p-2 border-2 rounded-md w-full" />
-            <label for="mac_address" class="block">MAC Address:</label>
-            <input type="text" name="mac_address" id="mac_address" class="p-2 border-2 rounded-md w-full" />
-            <div class="submit">
-                <button type="submit" class="btn w-full bg-indigo-600 p-2 text-white rounded-md mt-6">MAC Address Control</button>
-              </div>
-          </div>
-            
-       
-           
-            
           </form>
         </div>
       </div>

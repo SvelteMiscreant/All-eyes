@@ -101,6 +101,10 @@ def portcontrol_page():
 def ipcontrol_page():
     return render_template('ip_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
 
+@app.route('/maccontrol', methods=['GET'])
+def maccontrol_page():
+    return render_template('mac_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+
 # Port filter function
 
 def filter_inport(port):
