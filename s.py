@@ -10,7 +10,9 @@ socketio = SocketIO(app)
 
 packets = []
 blocked_ports = []
+opened_ports = []
 blocked_addresses = {'source_ips': [], 'destination_ips': [], 'mac_addresses': []}
+allowed_addresses = {'source_ips': [], 'destination_ips': [], 'mac_addresses': []}
 
 def get_protocol_name(protocol):
     protocol_names = {
@@ -74,9 +76,10 @@ def get_mac_address(mac_bytes):
     mac_string = map('{:02x}'.format, mac_bytes)
     return ':'.join(mac_string)
 
+def get_iptables_rules():
+    result = subprocess.run(['sudo', 'iptables', '-L'], capture_output=True, text=True)
+    return result.stdout
 
-
- 
 def validate_port(port):
     if not port:
         return None
@@ -91,19 +94,37 @@ def validate_port(port):
 
 @app.route('/')
 def index():
-    return render_template('ok1.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+    return render_template('ok1.html', )
 
 @app.route('/portcontrol')
 def portcontrol_page():
-    return render_template('port_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+    return render_template('port_control.html', )
 
 @app.route('/ipcontrol', methods=['GET'])
 def ipcontrol_page():
-    return render_template('ip_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+    return render_template('ip_control.html', )
 
 @app.route('/maccontrol', methods=['GET'])
 def maccontrol_page():
-    return render_template('mac_control.html', blocked_ports=blocked_ports, blocked_addresses=blocked_addresses)
+    return render_template('mac_control.html', )
+
+@app.route('/iptables')
+def iptables():
+    rules = get_iptables_rules()
+    return render_template('iptables.html', rules = rules)
+
+@app.route('/ns', methods=['POST'])
+def nslookup():
+    website = request.form['website']
+    try:
+        ip_address = socket.gethostbyname(website)
+        return jsonify({'status': 'success', 'website': website, 'ip_address': ip_address})
+    except socket.gaierror:
+        return jsonify({'status': 'error', 'message': "Couldn't resolve the hostname."})
+
+@app.route('/nslookup')
+def nslookup_page():
+    return render_template('nslookup.html')
 
 # Port filter function
 
@@ -146,11 +167,13 @@ def block_port():
 def open_inport(port):
     command = ['sudo', 'iptables', '-D', 'INPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
     subprocess.run(command)
+    opened_ports.append(port)
 
 def open_outport(port):
-	command = ['sudo', 'iptables', '-D', 'OUTPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
-	subprocess.run(command)
-    
+    command = ['sudo', 'iptables', '-D', 'OUTPUT', '-p', 'tcp', '--dport', str(port), '-j', 'DROP']
+    subprocess.run(command)
+    opened_ports.append(port)
+
 @app.route('/open_port', methods=['POST'])
 def open_port():
     # Code for opening port
@@ -171,7 +194,10 @@ def open_port():
             open_outport(outport)
             print('Outgoing port ', outport, ' is open.\n')
     
-    return jsonify({'message': 'Ports opened successfully'})
+    if inports or outports:
+        return jsonify({'message': 'Ports opened successfully'})
+    else:
+        return jsonify({'message': 'No ports opened', 'opened_ports': opened_ports})
 
 # IP Blocking
 
@@ -216,10 +242,12 @@ def block_ip():
 def allow_source_ip(ip):
     command = ['sudo', 'iptables', '-A', 'INPUT', '-s', ip, '-j', 'ACCEPT']
     subprocess.run(command)
+    allowed_addresses['source_ips'].append(ip)
 
 def allow_destination_ip(ip):
-	command = ['sudo', 'iptables', '-A', 'OUTPUT', '-d', ip, '-j', 'ACCEPT']
-	subprocess.run(command)
+    command = ['sudo', 'iptables', '-A', 'OUTPUT', '-d', ip, '-j', 'ACCEPT']
+    subprocess.run(command)
+    allowed_addresses['destination_ips'].append(ip)
 
 @app.route('/allow_ip', methods=['POST'])
 def allow_ip():
@@ -242,36 +270,10 @@ def allow_ip():
             allow_destination_ip(destination_ip)
             print('The destination IP address ', destination_ip, ' has been allowed.\n')
     
-    return jsonify({'message': 'IP addresses allowed successfully'})
-
-def allow_mac_address(mac_address):
-    command = ['sudo', 'iptables', '-A', 'INPUT', '-m', 'mac', '--mac-source', mac_address, '-j', 'ACCEPT']
-    subprocess.run(command)
-    blocked_addresses['mac_addresses'].append(mac_address)
-
-def block_mac_address(mac_address):
-    command = ['sudo', 'iptables', '-A', 'INPUT', '-m', 'mac', '--mac-source', mac_address, '-j', 'DROP']
-    subprocess.run(command)
-    blocked_addresses['mac_addresses'].append(mac_address)
-
-@app.route('/mac', methods=['POST'])
-def mac():
-    # Code for MAC address control
-    mac_address = request.form.get('mac_address')
-    action = request.form.get('action')
-
-    if mac_address:
-        mac_address = mac_address.strip()
-        if action == 'allow':
-            allow_mac_address(mac_address)
-            print('The MAC address ', mac_address, ' has been allowed.')
-        elif action == 'block':
-            block_mac_address(mac_address)
-            print('The MAC address ', mac_address, ' has been blocked.')
-        else:
-            print("Invalid action. Please enter 'allow' or 'block'.")
-    
-    return jsonify({'message': 'MAC address controlled successfully'})
+    if source_ips or destination_ips:
+        return jsonify({'message': 'IP addresses allowed successfully', 'allowed_addresses': allowed_addresses})
+    else:
+        return jsonify({'message': 'No IP addresses allowed'})
 
 
 @socketio.on('connect', namespace='/sniffer')
