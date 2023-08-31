@@ -1,26 +1,26 @@
 from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit
 import socket
 import struct
 import mysql.connector
 import json
-from flask_socketio import SocketIO, emit
-
+import threading
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+#app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
 
 # MySQL database configuration
-db = mysql.connector.connect(
+'''db = mysql.connector.connect(
     host='localhost',
     user='alleyes',
     password='mudrakali',
-    database='packets'
-)
-cursor = db.cursor()
+    database='packets')
+cursor = db.cursor()'''
 
 
 packets = []
+#capture_active = False
 
 def get_protocol_name(protocol):
     protocol_names = {
@@ -67,17 +67,32 @@ def packet_analyse(header, data):
     })
     
 # Insert the packet information into the MySQL database
-    insert_query = "INSERT INTO packet_data (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name) VALUES (%s, %s, %s, %s, %s, %s)"
-    values = (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name)
-    cursor.execute(insert_query, values)
-    db.commit()
+    #insert_query = "INSERT INTO packet_data (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name) VALUES (%s, %s, %s, %s, %s, %s)"
+    #values = (src_mac, dest_mac, src_ip, dest_ip, protocol, protocol_name)
+    #cursor.execute(insert_query, values)
+    #db.commit()
 
 def packet_sniffer():
-    sniffer = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+    #global capture_active
+	sniffer = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 
-    while True:
-        rawdata, addr = sniffer.recvfrom(65536)
-        packet_analyse(None, rawdata)
+    #while capture_active:
+	rawdata, addr = sniffer.recvfrom(65536)
+	packet_analyse(None, rawdata)
+        
+#@socketio.on('start_capture')
+#def start_capture():
+    #global capture_active
+
+    #if not capture_active:
+        #capture_active = True
+        #sniffer_thread = threading.Thread(target=packet_sniffer)
+        #sniffer_thread.start()
+        
+#@socketio.on('stop_capture')
+#def stop_capture():
+    #global capture_active
+    #capture_active = False
  
 def get_mac_address(mac_bytes):
 	mac_string = map('{:02x}'.format, mac_bytes)
@@ -88,7 +103,7 @@ def get_mac_address(mac_bytes):
 def index():
     return render_template('index.html')
 
-@socketio.on('connect')
+'''@socketio.on('connect')
 def handle_connect():
     # Retrieve packet data from the MySQL database
     select_query = "SELECT * FROM packet_data"
@@ -117,8 +132,7 @@ def handle_connect():
     #print(json_data)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
-
+    socketio.run(app, debug=True)'''
 
 
 if __name__ == '__main__':

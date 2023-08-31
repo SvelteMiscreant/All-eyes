@@ -24,6 +24,9 @@ def packet_analyse(header, data):
 	tcp_header = data[eth_length + iph_length:eth_length + iph_length + 20]
 	dest_port = struct.unpack('!H', tcp_header[2:4])[0]
 	#app_protocol = socket.getservbyport(dest_port)
+
+	if src_ip == '127.0.0.1' or dest_ip == '127.0.0.1':
+        return
     
 	print('Source IP: ', src_ip)
 	print('Destination IP: ', dest_ip)

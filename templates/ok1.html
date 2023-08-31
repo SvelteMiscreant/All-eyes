@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Packet Sniffer</title>
+      <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 10px;
+        }
+        h2{
+            margin-top: 10px;
+        }
+        #container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        #leftSection {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            position: relative;
+            margin-top: 50px;
+            margin-left: -270px;
+        }
+
+        #rightSection {
+            /* flex: 1; */
+            overflow: auto;
+            padding: 0px;
+            position: relative;
+            margin-top: 25px;
+        }
+
+        #right2Section {
+            flex: 1;
+            overflow: auto;
+            padding: 0px;
+            position: relative;
+        }
+
+        /* #rightbelowSection {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            margin-top: 270px;
+            margin-left: -900px;
+        } */
+        .submit .btn{
+        margin: 20px 0;
+        background-color: transparent;
+        width: fit-content;
+        border: 2px solid #8a2be2;
+        padding: 4px 35px;
+        border-radius: 5px;
+        }
+        .submit .btn:hover{
+            background: #8a2be2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/sniffer');
+
+        // Function to add a new packet row to the table
+        function addPacketRow(packet) {
+            var table = document.getElementById("packetTable").getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow(-1);
+            newRow.insertCell().innerText = packet.src_mac;
+            newRow.insertCell().innerText = packet.dest_mac;
+            newRow.insertCell().innerText = packet.src_ip;
+            newRow.insertCell().innerText = packet.dest_ip;
+            newRow.insertCell().innerText = packet.protocol;
+            newRow.insertCell().innerText = packet.protocol_name;
+        }
+
+        // Event handler for receiving initial packets data
+        socket.on('init_packets', function(packets) {
+            for (var i = 0; i < packets.length; i++) {
+                addPacketRow(packets[i]);
+            }
+        });
+
+        // Event handler for receiving new packets in real-time
+        socket.on('new_packet', function(packet) {
+            addPacketRow(packet);
+        });
+
+        // Function to handle form submissions using AJAX
+        function handleFormSubmit(formId, url) {
+            var form = document.getElementById(formId);
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                }
+            };
+            xhr.send(formData);
+        }
+
+        window.onload = ()=>{
+            var closebtn = document.getElementById("close-ham");
+            var drawer = document.getElementById("drawer");
+            var openbtn = document.getElementById("open-ham")
+            console.log(closebtn)
+            closebtn.addEventListener('click', ()=>{
+                drawer.style.display = 'none'
+            })
+            openbtn.addEventListener('click', ()=>{
+                drawer.style.display = 'block'
+            })
+        }
+        
+
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="relative" id="close">
+        <div class="absolute z-50 inset-0 flex justify-start bg-gray-500/20 h-screen hidden" id="drawer">
+            <div class="h-screen bg-white w-[40vw] ">
+
+                <div class="flex justify-end p-4">
+                    <div class="cursor-pointer" id="close-ham"> 
+
+                        <img width="20" height="20" src="https://img.icons8.com/ios/50/delete-sign--v1.png" alt="delete-sign--v1"/>
+                    </div>
+
+                </div>
+                <a href="/" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">Packet Analyzer</h1>
+
+                </a>
+                <a href="/portcontrol" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">Port Control</h1>
+
+                </a>
+                <a href="/ipcontrol" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">IP Control</h1>
+
+                </a>
+                <a href="/iptables" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">IP Table</h1>
+      
+                </a>
+                <a href="/nslookup" class="px-2 hover:text-indigo-600 cursor-pointer">
+                    <h1 class="text-start text-xl">NS Lookup</h1>
+      
+                </a>
+
+    
+            </div>
+    
+          </div>
+          <div class="flex justify-start w-full px-4 p-3 items-center">
+            <div class="cursor-pointer" id="open-ham">
+                <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/menu--v1.png" alt="menu--v1"/>
+            </div>
+            <div class="mx-4">
+                <h1 class="text-black font-bold">Packet Sniffer</h1>
+    
+    
+            </div>
+    
+          </div>
+          <div class="flex justify-center shadow-md rounded-md mx-4">
+            <div id="leftSection" class="mx-2">
+                <div id="scrollableBox">
+                    <table id="packetTable">
+                        <thead>
+                            <tr>
+                                <th>Source MAC</th>
+                                <th>Destination MAC</th>
+                                <th>Source IP</th>
+                                <th>Destination IP</th>
+                                <th>Protocol</th>
+                                <th>Protocol Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+
+    </div>
+      <!-- <div id="container">
+        <div id="header">
+            <h1>Packet Sniffer</h1>
+          </div>
+          <div id="leftSection">
+              <div id="scrollableBox">
+                  <table id="packetTable">
+                      <thead>
+                          <tr>
+                              <th>Source MAC</th>
+                              <th>Destination MAC</th>
+                              <th>Source IP</th>
+                              <th>Destination IP</th>
+                              <th>Protocol</th>
+                              <th>Protocol Name</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div id="rightSection">
+              <h2>Network Actions</h2>
+              <form id="blockPortForm" onsubmit="event.preventDefault(); handleFormSubmit('blockPortForm', '/block_port');" method="post">
+                  <label for="inports">Incoming Ports to Block:</label>
+                  <input type="text" name="inports" id="inports">
+                  <br>
+                  <label for="outports">Outgoing Ports to Block:</label>
+                  <input type="text" name="outports" id="outports">
+                  <br>
+                  <div class="submit">
+                    <button type="submit" class="btn">Block Port</button>
+                  </div>
+                
+              </form>
+              <form id="openPortForm" onsubmit="event.preventDefault(); handleFormSubmit('openPortForm', '/open_port');" method="post">
+                  <label for="inports">Incoming Ports to Open:</label>
+                  <input type="text" name="inports" id="inports">
+                  <br>
+                  <label for="outports">Outgoing Ports to Open:</label>
+                  <input type="text" name="outports" id="outports">
+                  <br>
+                  <div class="submit">
+                    <button type="submit" class="btn">Open Port</button>
+                  </div>
+              </form>
+            </div>
+              <div id="right2section">
+                <form id="blockIPForm" onsubmit="event.preventDefault(); handleFormSubmit('blockIPForm', '/block_ip');" method="post">
+                    <label for="source_ips">Source IP Addresses to Block:</label>
+                    <input type="text" name="source_ips" id="source_ips">
+                    <br>
+                    <label for="destination_ips">Destination IP Addresses to Block:</label>
+                    <input type="text" name="destination_ips" id="destination_ips">
+                    <br>
+                    <div class="submit">
+                        <button type="submit" class="btn">Block IP Address</button>
+                      </div>
+                  </form>
+                <form id="allowIPForm" onsubmit="event.preventDefault(); handleFormSubmit('allowIPForm', '/allow_ip');" method="post">
+                    <label for="source_ips">Source IP Addresses to Allow:</label>
+                    <input type="text" name="source_ips" id="source_ips">
+                    <br>
+                    <label for="destination_ips">Destination IP Addresses to Allow:</label>
+                    <input type="text" name="destination_ips" id="destination_ips">
+                    <br>
+                    <div class="submit">
+                        <button type="submit" class="btn">Allow IP Address</button>
+                      </div>
+                    
+                  </form>
+                  <form id="macForm" onsubmit="event.preventDefault(); handleFormSubmit('macForm', '/mac');" method="post">
+                    <label for="mac_address">MAC Address:</label>
+                    <input type="text" name="mac_address" id="mac_address">
+                    <br>
+                    <label for="action">Action:</label>
+                    <select name="action" id="action">
+                        <option value="allow">Allow</option>
+                        <option value="block">Block</option>
+                    </select>
+                    <br>
+                    <div class="submit">
+                        <button type="submit" class="btn">MAC Address Control</button>
+                      </div>
+                  </form>
+              </div>
+             
+      </div> -->
+
+      
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>

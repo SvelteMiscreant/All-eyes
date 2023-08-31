@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IP Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<script>
+  // Function to handle form submissions using AJAX
+  function handleFormSubmit(formId, url) {
+    var form = document.getElementById(formId);
+    var formData = new FormData(form);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        alert(response.message);
+      }
+    };
+    xhr.send(formData);
+  }
+  window.onload = () => {
+    var closebtn = document.getElementById("close-ham");
+    var drawer = document.getElementById("drawer");
+    var openbtn = document.getElementById("open-ham");
+    console.log(closebtn);
+    closebtn.addEventListener("click", () => {
+      drawer.style.display = "none";
+    });
+    openbtn.addEventListener("click", () => {
+      drawer.style.display = "block";
+    });
+  };
+</script>
+
+<body>
+  <div class="relative" id="close">
+    <div class="absolute z-50 inset-0 flex justify-start bg-gray-500/20 h-screen hidden" id="drawer">
+      <div class="h-screen bg-white w-[40vw] ">
+
+        <div class="flex justify-end p-4">
+          <div class="cursor-pointer" id="close-ham">
+
+            <img width="20" height="20" src="https://img.icons8.com/ios/50/delete-sign--v1.png" alt="delete-sign--v1" />
+          </div>
+
+        </div>
+        <a href="/" class="px-2 hover:text-indigo-600 cursor-pointer">
+          <h1 class="text-start text-xl">Packet Analyzer</h1>
+
+      </a>
+      <a href="/portcontrol" class="px-2 hover:text-indigo-600 cursor-pointer">
+          <h1 class="text-start text-xl">Port Control</h1>
+
+      </a>
+      <a href="/ipcontrol" class="px-2 hover:text-indigo-600 cursor-pointer">
+          <h1 class="text-start text-xl">IP Control</h1>
+
+      </a>
+      <a href="/iptables" class="px-2 hover:text-indigo-600 cursor-pointer">
+          <h1 class="text-start text-xl">IP Table</h1>
+
+      </a>
+      <a href="/nslookup" class="px-2 hover:text-indigo-600 cursor-pointer">
+          <h1 class="text-start text-xl">NS Lookup</h1>
+
+      </a>
+
+
+      </div>
+
+    </div>
+    <div class="flex justify-start w-full px-4 p-3 items-center">
+      <div class="cursor-pointer" id="open-ham">
+        <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/menu--v1.png" alt="menu--v1" />
+      </div>
+      <div class="mx-4">
+        <h1 class="text-black font-bold">IP Control</h1>
+      </div>
+    </div>
+
+    <div class="flex justify-center px-4">
+      <div id="right2section" class="">
+        <form id="blockIPForm" onsubmit="event.preventDefault(); handleFormSubmit('blockIPForm', '/block_ip');"
+          method="post">
+          <div class="p-2 rounded-lg shadow-md p-4 w-[80vw]">
+            <div class="">
+              <label for="source_ips" class="block">Source IP Addresses to Block:</label>
+              <input type="text" name="source_ips" id="source_ips" class="p-2 border-2 rounded-md w-full" />
+            </div>
+            <div>
+              <label for="destination_ips" class="block">Destination IP Addresses to Block:</label>
+              <input type="text" name="destination_ips" id="destination_ips" class="p-2 border-2 rounded-md w-full" />
+            </div>
+
+            <div class="submit">
+              <button type="submit" class="btn w-full bg-indigo-600 p-2 text-white rounded-md mt-6">
+                Block IP Address
+              </button>
+            </div>
+          </div>
+        </form>
+        <form id="allowIPForm" onsubmit="event.preventDefault(); handleFormSubmit('allowIPForm', '/allow_ip');"
+          method="post" class="my-4">
+          <div class="p-2 rounded-lg shadow-md p-4 w-[80vw]">
+            <label for="source_ips" class="block">Source IP Addresses to Allow:</label>
+            <input type="text" name="source_ips" id="source_ips" class="p-2 border-2 rounded-md w-full" />
+            <label for="destination_ips" class="block">Destination IP Addresses to Allow:</label>
+            <input type="text" name="destination_ips" id="destination_ips" class="p-2 border-2 rounded-md w-full" />
+
+            <div class="submit">
+              <button type="submit" class="btn w-full bg-indigo-600 p-2 text-white rounded-md mt-6">
+                Allow IP Address
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
